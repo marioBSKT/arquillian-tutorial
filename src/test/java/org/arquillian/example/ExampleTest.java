@@ -18,6 +18,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.apache.camel.test.junit4.CamelTestSupport;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+
 @RunWith(Arquillian.class)
 public class ExampleTest extends CamelTestSupport {
 
@@ -28,8 +30,9 @@ public class ExampleTest extends CamelTestSupport {
                 .addClass(SomeBean.class)
                 .addClass(InceptedClass.class)
                 .addClass(CustomCamelContext.class)
-                .addClass(DataSourceProvider.class)
-                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
+                .addClasses(DataSourceProvider.class, DataSourceProviderImpl.class, DataSourceProviderAlternative.class)
+                //.addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
+                .addAsManifestResource("beans.xml");
         System.out.println(jar.toString(true));
         return jar;
     }
@@ -44,7 +47,10 @@ public class ExampleTest extends CamelTestSupport {
     @EndpointInject(uri = "mock:stock")
     MockEndpoint mockStock;
 
-    @Test
+    @Inject
+    DataSourceProvider ds;
+
+    //@Test
     public void shouldCountOneMessage() throws Exception {
         dummyRouteBuilder.addRoutesToCamelContext(context);
         context.getRouteDefinition("dummy").adviceWith(context, new AdviceWithRouteBuilder() {
@@ -57,6 +63,12 @@ public class ExampleTest extends CamelTestSupport {
         template.sendBody(directTrigger, "Daz");
         mockStock.expectedMessageCount(1);
         mockStock.assertIsSatisfied();
+    }
+
+    @Test
+    public void should_bean_be_fancy() throws Exception {
+        // because it is declared as the alternative in beans.xml
+        assertThat(ds, instanceOf(DataSourceProviderAlternative.class));
     }
 
 }
