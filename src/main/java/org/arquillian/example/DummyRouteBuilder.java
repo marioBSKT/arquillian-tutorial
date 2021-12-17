@@ -21,6 +21,7 @@ public class DummyRouteBuilder extends RouteBuilder {
         from("file:///home/dario/tmp?fileName=dummy.csv")
                 .id("dummy")
                 .unmarshal(someBean)
+                .to("jdbc:dummy-datasource")
                 .log("Ciao ${body}")
                 .to("file:///home/dario/tmp/result?fileName=saluti.txt&fileExist=append").id("dummyEnd");
     }

@@ -28,6 +28,7 @@ public class ExampleTest extends CamelTestSupport {
                 .addClass(SomeBean.class)
                 .addClass(InceptedClass.class)
                 .addClass(CustomCamelContext.class)
+                .addClass(DataSourceProvider.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
         System.out.println(jar.toString(true));
         return jar;
