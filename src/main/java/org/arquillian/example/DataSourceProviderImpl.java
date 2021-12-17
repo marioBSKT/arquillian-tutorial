@@ -13,7 +13,7 @@ public class DataSourceProviderImpl implements DataSourceProvider{
     @Named("dummy-datasource")
     public javax.sql.DataSource getDataSource() throws Exception {
         InitialContext ctx = new InitialContext();
-        DataSource ds = (DataSource) ctx.lookup("java:jboss/ExampleDataSource");
+        DataSource ds = (DataSource) ctx.lookup("datasource/ds");
         return ds;
     }
 }
