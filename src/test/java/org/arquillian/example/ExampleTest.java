@@ -24,17 +24,14 @@ public class ExampleTest extends CamelTestSupport {
     @Deployment
     public static JavaArchive createDeployment() {
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
-                .addClass(Greeter.class)
                 .addClass(DummyRouteBuilder.class)
                 .addClass(SomeBean.class)
                 .addClass(InceptedClass.class)
+                .addClass(CustomCamelContext.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
         System.out.println(jar.toString(true));
         return jar;
     }
-
-    @Inject
-    Greeter greeter;
 
     @Inject
     @ContextName("dummy-context")
@@ -45,13 +42,6 @@ public class ExampleTest extends CamelTestSupport {
 
     @EndpointInject(uri = "mock:stock")
     MockEndpoint mockStock;
-
-    @Test
-    public void should_create_greeting() {
-        Assert.assertEquals("Hello, Earthling!",
-                greeter.createGreeting("Earthling"));
-        greeter.greet(System.out, "Earthling");
-    }
 
     @Test
     public void shouldCountOneMessage() throws Exception {

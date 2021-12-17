@@ -1,17 +1,30 @@
 package org.arquillian.example;
 
-import org.arquillian.example.inception.InceptedClass;
+import org.apache.camel.dataformat.bindy.annotation.CsvRecord;
+import org.apache.camel.dataformat.bindy.annotation.DataField;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-@ApplicationScoped
+@CsvRecord(separator = ",")
 public class SomeBean {
 
-    @Inject
-    InceptedClass inceptedClass;
+    @DataField(pos = 1)
+    private String fieldOne;
 
-    public String stupid(String input) {
-        return "STUPID " + input + inceptedClass.dumb();
+    @DataField(pos = 2)
+    private String fieldTwo;
+
+    public String getFieldOne() {
+        return fieldOne;
+    }
+
+    public void setFieldOne(String fieldOne) {
+        this.fieldOne = fieldOne;
+    }
+
+    public String getFieldTwo() {
+        return fieldTwo;
+    }
+
+    public void setFieldTwo(String fieldTwo) {
+        this.fieldTwo = fieldTwo;
     }
 }

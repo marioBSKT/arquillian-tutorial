@@ -1,6 +1,7 @@
 package org.arquillian.example;
 
 import org.apache.camel.cdi.ContextName;
+import org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat;
 import org.apache.camel.impl.DefaultCamelContext;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -16,8 +17,8 @@ public class CustomCamelContext extends DefaultCamelContext {
     @Produces
     @Named("some-bean")
     @ApplicationScoped
-    public SomeBean getSomeBean() {
-        return new SomeBean();
+    public BindyCsvDataFormat getCsvDataFormat() {
+        return new BindyCsvDataFormat(SomeBean.class);
     }
 
 }
