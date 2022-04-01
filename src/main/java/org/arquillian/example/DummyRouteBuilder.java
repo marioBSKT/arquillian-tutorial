@@ -11,14 +11,14 @@ import javax.inject.Inject;
 public class DummyRouteBuilder extends RouteBuilder {
 
     @Inject
-    SomeBean stupidClass;
+    @ContextName("dummy-context")
+    SomeBean someBean;
 
     @Override
     public void configure() throws Exception {
         from("file:///home/dario/tmp?fileName=dummy.csv")
-                .id("dummy")
-                .unmarshal("some-bean")
-                .log("Ciao " + stupidClass.stupid("BOH") + " ${body}")
-                .to("file:///home/dario/tmp/result?fileName=saluti.txt&fileExist=append").id("dummyEnd");
+                .id("dummy-route")
+                .toD("{{jdbc.endpoint.uri}}")
+                .to("file:///{{home.path}}/tmp/result?fileName=test.txt&fileExist=append").id("dummyEnd");
     }
 }

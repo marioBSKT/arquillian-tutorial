@@ -1,12 +1,14 @@
 package org.arquillian.example;
 
 import javax.inject.Inject;
+import javax.naming.InitialContext;
 
 import org.apache.camel.EndpointInject;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.cdi.ContextName;
 import org.apache.camel.component.direct.DirectEndpoint;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.impl.JndiRegistry;
 import org.arquillian.example.inception.InceptedClass;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -14,6 +16,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.apache.camel.test.junit4.CamelTestSupport;
@@ -28,6 +31,7 @@ public class ExampleTest extends CamelTestSupport {
                 .addClass(DummyRouteBuilder.class)
                 .addClass(SomeBean.class)
                 .addClass(InceptedClass.class)
+                .addClass(CustomCamelContext.class)
                 .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
         System.out.println(jar.toString(true));
         return jar;
@@ -46,24 +50,37 @@ public class ExampleTest extends CamelTestSupport {
     @EndpointInject(uri = "mock:stock")
     MockEndpoint mockStock;
 
-    @Test
-    public void should_create_greeting() {
-        Assert.assertEquals("Hello, Earthling!",
-                greeter.createGreeting("Earthling"));
-        greeter.greet(System.out, "Earthling");
-    }
+    @Inject
+    @ContextName("dummy-context")
+    CustomCamelContext customCamelContext;
 
-    @Test
-    public void shouldCountOneMessage() throws Exception {
+    private InitialContext initialContext;
+
+    @Before
+    public void setup() throws Exception {
         dummyRouteBuilder.addRoutesToCamelContext(context);
-        context.getRouteDefinition("dummy").adviceWith(context, new AdviceWithRouteBuilder() {
+        context.getRouteDefinition("dummy-route").adviceWith(context, new AdviceWithRouteBuilder() {
             @Override
             public void configure() throws Exception {
                 replaceFromWith(directTrigger);
                 weaveById("dummyEnd").replace().to(mockStock);
             }
         });
-        template.sendBody(directTrigger, "Daz");
+    }
+
+    @Override
+    protected JndiRegistry createRegistry() throws Exception {
+        this.initialContext = new InitialContext();
+        JndiRegistry jndiRegistry = super.createRegistry();
+        if (jndiRegistry.lookupByName("properties") == null) {
+            jndiRegistry.bind("properties", customCamelContext.propertiesComponent());
+        }
+        return jndiRegistry;
+    }
+
+    @Test
+    public void shouldCountOneMessage() throws Exception {
+        template.sendBody(directTrigger, "SELECT 1 FROM DUAL");
         mockStock.expectedMessageCount(1);
         mockStock.assertIsSatisfied();
     }
