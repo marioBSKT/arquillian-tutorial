@@ -18,7 +18,6 @@ public class DummyRouteBuilder extends RouteBuilder {
     public void configure() throws Exception {
         from("file:///home/dario/tmp?fileName=dummy.csv")
                 .id("dummy-route")
-                .toD("{{jdbc.endpoint.uri}}")
                 .to("file:///{{home.path}}/tmp/result?fileName=test.txt&fileExist=append").id("dummyEnd");
     }
 }

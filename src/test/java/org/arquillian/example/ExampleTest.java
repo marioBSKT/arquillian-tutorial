@@ -80,7 +80,7 @@ public class ExampleTest extends CamelTestSupport {
 
     @Test
     public void shouldCountOneMessage() throws Exception {
-        template.sendBody(directTrigger, "SELECT 1 FROM DUAL");
+        template.sendBody(directTrigger, "TEST");
         mockStock.expectedMessageCount(1);
         mockStock.assertIsSatisfied();
     }
